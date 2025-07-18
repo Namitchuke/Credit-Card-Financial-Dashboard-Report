@@ -1,0 +1,315 @@
+-- Credit Card Financial Dashboard - SQL Queries for All KPIs
+
+-- ==================================================
+-- 1. MAIN KPI METRICS
+-- ==================================================
+
+-- Total Revenue
+
+SELECT 
+    SUM(Interest_Earned) as Total_Revenue
+FROM cc_detail;
+
+-- Total Transaction Amount
+
+SELECT 
+    SUM(Total_Trans_Amt) as Total_Transaction_Amount
+FROM cc_detail;
+
+-- Total Interest Earned
+
+SELECT 
+    SUM(Interest_Earned) as Total_Interest_Earned
+FROM cc_detail;
+
+-- Total Transaction Count
+
+SELECT 
+    SUM(Total_Trans_Ct) as Total_Transaction_Count
+FROM cc_detail;
+
+-- Total Income (from customer data)
+
+SELECT 
+    SUM(Income) as Total_Income
+FROM cust_detail;
+
+-- Customer Satisfaction Score (CSS) - Average
+SELECT 
+    ROUND(AVG(Cust_Satisfaction_Score), 2) as Average_CSS
+FROM cust_detail;
+
+-- ==================================================
+-- 2. QUARTERLY ANALYSIS
+-- ==================================================
+
+-- Revenue and Transaction Volume by Quarter
+
+SELECT 
+    Qtr,
+    SUM(Interest_Earned) as Revenue,
+    SUM(Total_Trans_Ct) as Total_Transaction_Volume
+FROM cc_detail
+GROUP BY Qtr
+ORDER BY Qtr;
+
+-- ==================================================
+-- 3. REVENUE BY EXPENSE TYPE
+-- ==================================================
+
+-- Revenue by Expense Type
+
+SELECT 
+    Exp_Type,
+    SUM(Interest_Earned) as Revenue
+FROM cc_detail
+GROUP BY Exp_Type
+ORDER BY Revenue DESC;
+
+-- ==================================================
+-- 4. REVENUE BY EDUCATION LEVEL
+-- ==================================================
+
+-- Revenue by Education Level
+
+SELECT 
+    cd.Education_Level,
+    SUM(cc.Interest_Earned) as Revenue
+FROM cc_detail cc
+JOIN cust_detail cd ON cc.Client_Num = cd.Client_Num
+GROUP BY cd.Education_Level
+ORDER BY Revenue DESC;
+
+-- ==================================================
+-- 5. REVENUE BY CUSTOMER JOB
+-- ==================================================
+
+-- Revenue by Customer Job
+
+SELECT 
+    cd.Customer_Job,
+    SUM(cc.Interest_Earned) as Revenue
+FROM cc_detail cc
+JOIN cust_detail cd ON cc.Client_Num = cd.Client_Num
+GROUP BY cd.Customer_Job
+ORDER BY Revenue DESC;
+
+-- ==================================================
+-- 6. REVENUE BY CARD CATEGORY
+-- ==================================================
+
+-- Revenue by Card Category with Transaction Amount and Interest
+
+SELECT 
+    Card_Category,
+    SUM(Interest_Earned) as Revenue,
+    SUM(Total_Trans_Amt) as Total_Transaction_Amount,
+    SUM(Interest_Earned) as Total_Interest
+FROM cc_detail
+GROUP BY Card_Category
+ORDER BY Revenue DESC;
+
+-- ==================================================
+-- 7. REVENUE BY CHIP USAGE
+-- ==================================================
+
+-- Revenue by Chip Usage Type
+
+SELECT 
+    Use_Chip,
+    SUM(Interest_Earned) as Revenue
+FROM cc_detail
+GROUP BY Use_Chip
+ORDER BY Revenue DESC;
+
+-- ==================================================
+-- 8. REVENUE BY INCOME GROUP
+-- ==================================================
+
+-- Revenue by Income Group (categorized)
+
+SELECT 
+    CASE 
+        WHEN cd.Income < 35000 THEN 'Low'
+        WHEN cd.Income BETWEEN 35000 AND 70000 THEN 'Med'
+        ELSE 'High'
+    END as Income_Group,
+    SUM(cc.Interest_Earned) as Revenue
+FROM cc_detail cc
+JOIN cust_detail cd ON cc.Client_Num = cd.Client_Num
+GROUP BY Income_Group
+ORDER BY Revenue DESC;
+
+-- ==================================================
+-- 9. CUSTOMER JOB ANALYSIS WITH INCOME AND INTEREST
+-- ==================================================
+
+-- Detailed Customer Job Analysis
+
+SELECT 
+    cd.Customer_Job,
+    SUM(cc.Interest_Earned) as Revenue,
+    SUM(cd.Income) as Total_Income,
+    SUM(cc.Interest_Earned) as Interest_Earned
+FROM cc_detail cc
+JOIN cust_detail cd ON cc.Client_Num = cd.Client_Num
+GROUP BY cd.Customer_Job
+ORDER BY Revenue DESC;
+
+-- ==================================================
+-- 10. REVENUE BY GENDER
+-- ==================================================
+
+-- Revenue by Gender
+
+SELECT 
+    cd.Gender,
+    SUM(cc.Interest_Earned) as Revenue
+FROM cc_detail cc
+JOIN cust_detail cd ON cc.Client_Num = cd.Client_Num
+GROUP BY cd.Gender
+ORDER BY Revenue DESC;
+
+-- ==================================================
+-- 11. REVENUE BY WEEK (TIME SERIES)
+-- ==================================================
+
+-- Revenue by Week for Time Series Analysis
+
+SELECT 
+    Week_Start_Date,
+    SUM(Interest_Earned) as Revenue
+FROM cc_detail
+GROUP BY Week_Start_Date
+ORDER BY Week_Start_Date;
+
+-- ==================================================
+-- 12. REVENUE BY AGE GROUP
+-- ==================================================
+
+-- Revenue by Age Group
+SELECT 
+    CASE 
+        WHEN cd.Customer_Age BETWEEN 20 AND 30 THEN '20-30'
+        WHEN cd.Customer_Age BETWEEN 31 AND 40 THEN '30-40'
+        WHEN cd.Customer_Age BETWEEN 41 AND 50 THEN '40-50'
+        WHEN cd.Customer_Age BETWEEN 51 AND 60 THEN '50-60'
+        ELSE '60+'
+    END as Age_Group,
+    SUM(cc.Interest_Earned) as Revenue
+FROM cc_detail cc
+JOIN cust_detail cd ON cc.Client_Num = cd.Client_Num
+GROUP BY Age_Group
+ORDER BY Revenue DESC;
+
+-- ==================================================
+-- 13. REVENUE BY DEPENDENT COUNT
+-- ==================================================
+
+-- Revenue by Dependent Count
+
+SELECT 
+    cd.Dependent_Count,
+    SUM(cc.Interest_Earned) as Revenue
+FROM cc_detail cc
+JOIN cust_detail cd ON cc.Client_Num = cd.Client_Num
+GROUP BY cd.Dependent_Count
+ORDER BY cd.Dependent_Count;
+
+-- ==================================================
+-- 14. REVENUE BY TOP 5 STATES
+-- ==================================================
+
+-- Revenue by Top 5 States
+
+
+SELECT 
+    cd.State_cd,
+    SUM(cc.Interest_Earned) as Revenue
+FROM cc_detail cc
+JOIN cust_detail cd ON cc.Client_Num = cd.Client_Num
+GROUP BY cd.State_cd
+ORDER BY Revenue DESC
+LIMIT 5;
+
+-- ==================================================
+-- 15. REVENUE BY MARITAL STATUS
+-- ==================================================
+
+-- Revenue by Marital Status
+
+
+SELECT 
+    cd.Marital_Status,
+    SUM(cc.Interest_Earned) as Revenue
+FROM cc_detail cc
+JOIN cust_detail cd ON cc.Client_Num = cd.Client_Num
+GROUP BY cd.Marital_Status
+ORDER BY Revenue DESC;
+
+-- ==================================================
+-- 16. COMPREHENSIVE DASHBOARD SUMMARY
+-- ==================================================
+
+-- Complete Dashboard Summary Query
+
+-- Main KPIs
+
+SELECT 
+    SUM(cc.Interest_Earned) as Total_Revenue,
+    SUM(cc.Total_Trans_Amt) as Total_Transaction_Amount,
+    SUM(cc.Interest_Earned) as Total_Interest_Earned,
+    SUM(cc.Total_Trans_Ct) as Total_Transaction_Count,
+    SUM(cd.Income) as Total_Income,
+    ROUND(AVG(cd.Cust_Satisfaction_Score), 2) as Average_CSS,
+    
+    -- Additional Metrics
+
+    COUNT(DISTINCT cc.Client_Num) as Total_Customers,
+    ROUND(AVG(cc.Credit_Limit), 2) as Average_Credit_Limit,
+    ROUND(AVG(cc.Avg_Utilization_Ratio), 3) as Average_Utilization_Ratio
+FROM cc_detail cc
+JOIN cust_detail cd ON cc.Client_Num = cd.Client_Num;
+
+-- ==================================================
+-- 17. MONTHLY REVENUE TREND
+-- ==================================================
+
+-- Monthly Revenue Trend
+
+SELECT 
+    EXTRACT(YEAR FROM Week_Start_Date) as Year,
+    EXTRACT(MONTH FROM Week_Start_Date) as Month,
+    SUM(Interest_Earned) as Monthly_Revenue
+FROM cc_detail
+GROUP BY EXTRACT(YEAR FROM Week_Start_Date), EXTRACT(MONTH FROM Week_Start_Date)
+ORDER BY Year, Month;
+
+-- ==================================================
+-- 18. CARD UTILIZATION ANALYSIS
+-- ==================================================
+
+-- Card Utilization Analysis
+
+SELECT 
+    Card_Category,
+    ROUND(AVG(Avg_Utilization_Ratio), 3) as Average_Utilization,
+    ROUND(AVG(Credit_Limit), 2) as Average_Credit_Limit,
+    COUNT(*) as Card_Count
+FROM cc_detail
+GROUP BY Card_Category
+ORDER BY Average_Utilization DESC;
+
+-- ==================================================
+-- 19. CUSTOMER ACQUISITION COST ANALYSIS
+-- ==================================================
+
+-- Customer Acquisition Cost by Card Category
+
+SELECT 
+    Card_Category,
+    ROUND(AVG(Customer_Acq_Cost), 2) as Average_Acquisition_Cost,
+    COUNT(*) as Customer_Count
+FROM cc_detail
+GROUP BY Card_Category
+ORDER BY Average_Acquisition_Cost DESC;
